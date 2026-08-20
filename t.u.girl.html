@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Love · Blossom & Blast</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,700&family=Quicksand:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    /* ----- reset & base ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(145deg, #fff5f7 0%, #ffe3e8 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+      position: relative;
+      padding: 1rem;
+    }
+
+    /* ----- floating hearts background (always) ----- */
+    .hearts-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .heart-float {
+      position: absolute;
+      color: rgba(255, 105, 180, 0.25);
+      font-size: 2.2rem;
+      animation: floatHeart 20s infinite alternate ease-in-out;
+      user-select: none;
+    }
+
+    @keyframes floatHeart {
+      0% { transform: translateY(0px) rotate(0deg) scale(1); opacity: 0.2; }
+      100% { transform: translateY(-140px) rotate(25deg) scale(1.4); opacity: 0.6; }
+    }
+
+    /* ----- main card premium glass ----- */
+    .premium-card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 560px;
+      background: rgba(255, 245, 248, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 56px;
+      padding: 2.5rem 1.8rem 2.8rem;
+      box-shadow: 0 30px 60px rgba(200, 80, 120, 0.2), 0 10px 30px rgba(255, 182, 193, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    /* toggle login / home */
+    .toggle-login { display: none; }
+    .login-page, .home-page { transition: opacity 0.5s ease, transform 0.4s ease; }
+    .login-page { display: block; }
+    .home-page { display: none; }
+    .toggle-login:checked ~ .login-page { display: none; }
+    .toggle-login:checked ~ .home-page { display: block; }
+
+    /* ----- login form ----- */
+    .login-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.4rem;
+      color: #b3406c;
+      letter-spacing: 1px;
+      margin-bottom: 0.3rem;
+    }
+    .login-sub {
+      color: #a55a7a;
+      font-weight: 300;
+      letter-spacing: 1px;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      opacity: 0.8;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-bottom: 1.8rem;
+    }
+    .input-group label {
+      font-weight: 400;
+      color: #7a4a5e;
+      letter-spacing: 0.5px;
+      font-size: 0.95rem;
+    }
+    .input-group input {
+      padding: 1rem 1.5rem;
+      border-radius: 60px;
+      border: 1px solid rgba(200, 120, 150, 0.3);
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(4px);
+      font-size: 1.1rem;
+      font-family: 'Quicksand', sans-serif;
+      outline: none;
+      transition: 0.3s;
+      color: #3d2a33;
+      box-shadow: inset 0 2px 6px rgba(255, 200, 210, 0.2);
+    }
+    .input-group input:focus {
+      border-color: #f28b9f;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 0 4px rgba(255, 130, 160, 0.15);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #f27a9f, #e05e85);
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: white;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(220, 80, 120, 0.3);
+      transition: 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .btn-primary:hover { transform: scale(1.02); box-shadow: 0 12px 28px rgba(220, 80, 120, 0.45); }
+
+    /* ----- home page love message ----- */
+    .home-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.6rem;
+      color: #b13e66;
+      margin-bottom: 0.1rem;
+    }
+    .home-sub {
+      font-size: 1.1rem;
+      color: #7d4a5e;
+      font-weight: 300;
+      margin-bottom: 1.2rem;
+      border-bottom: 1px dashed rgba(200, 100, 130, 0.2);
+      padding-bottom: 0.8rem;
+    }
+    .love-message-box {
+      background: rgba(255, 240, 245, 0.4);
+      backdrop-filter: blur(6px);
+      border-radius: 40px;
+      padding: 1.5rem 1.2rem;
+      margin: 1rem 0 1.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: inset 0 0 20px rgba(255, 182, 193, 0.1);
+      max-height: 380px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #f2a0b5 #ffe3e8;
+      cursor: pointer; /* indicates tap */
+    }
+    .love-message-box::-webkit-scrollbar { width: 5px; }
+    .love-message-box::-webkit-scrollbar-track { background: #ffe3e8; border-radius: 20px; }
+    .love-message-box::-webkit-scrollbar-thumb { background: #f2a0b5; border-radius: 20px; }
+
+    .love-message {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: #972f5a;
+      line-height: 1.6;
+      text-align: left;
+      padding: 0 0.2rem;
+    }
+    .love-message strong {
+      font-weight: 700;
+      color: #b13e66;
+      background: linear-gradient(135deg, #f7b0c0, #f28aab);
+      padding: 0.1rem 0.8rem;
+      border-radius: 60px;
+      display: inline-block;
+      box-shadow: 0 2px 12px rgba(220, 80, 120, 0.15);
+    }
+    .heart-icon { color: #e04a7a; margin: 0 4px; display: inline-block; animation: pulseHeart 1.8s infinite alternate; }
+    @keyframes pulseHeart { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(1.2); opacity: 1; } }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1.5px solid #d47a97;
+      color: #9b4a6a;
+      padding: 0.7rem 2rem;
+      border-radius: 60px;
+      font-weight: 500;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+      backdrop-filter: blur(4px);
+      background: rgba(255, 255, 255, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-secondary:hover { background: rgba(255, 200, 215, 0.4); border-color: #b85a7a; transform: scale(1.02); }
+
+    /* ----- audio player (premium minimal) ----- */
+    .audio-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 99;
+      opacity: 0.6;
+      transition: 0.3s;
+    }
+    .audio-container:hover { opacity: 1; }
+    .audio-container audio {
+      width: 140px;
+      border-radius: 60px;
+      background: rgba(255, 220, 230, 0.4);
+      backdrop-filter: blur(4px);
+    }
+
+    /* ----- BLAST EFFECT (blood burst) ----- */
+    .blast-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      overflow: hidden;
+    }
+    .blood-drop {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: radial-gradient(circle, #b3002e, #66001a);
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(45deg);
+      animation: bloodSplat 0.9s ease-out forwards;
+      box-shadow: 0 0 12px #cc1144;
+    }
+    @keyframes bloodSplat {
+      0% { opacity: 1; transform: translate(0,0) scale(0.5) rotate(45deg); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.8) rotate(120deg); }
+    }
+
+    /* responsive */
+    @media (max-width: 500px) {
+      .premium-card { padding: 1.8rem 1rem 2rem; border-radius: 36px; }
+      .login-title { font-size: 2rem; }
+      .home-title { font-size: 2rem; }
+      .love-message { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- floating hearts background -->
+  <div class="hearts-bg" id="heartsBg"></div>
+
+  <!-- blast container (dynamic) -->
+  <div class="blast-container" id="blastContainer"></div>
+
+  <!-- main card -->
+  <div class="premium-card">
+
+    <input type="checkbox" id="toggleLogin" class="toggle-login" />
+
+    <!-- ====== LOGIN ====== -->
+    <div class="login-page">
+      <div class="login-title">✦ welcome ✦</div>
+      <div class="login-sub">enter your name to begin</div>
+      <form id="loginForm" onsubmit="return handleLogin(event)">
+        <div class="input-group">
+          <label><i class="fas fa-pen-fancy" style="color:#c45a7a; margin-right:6px;"></i> Your name</label>
+          <input type="text" id="nameInput" placeholder="e.g. Isabella" required autofocus />
+        </div>
+        <button type="submit" class="btn-primary"><i class="fas fa-arrow-right"></i> enter</button>
+      </form>
+      <div style="margin-top: 1.8rem; font-size: 0.8rem; color: #b68a9a; letter-spacing: 1px;">
+        <i class="fas fa-heart" style="color:#e06a8a;"></i> love awaits
+      </div>
+    </div>
+
+    <!-- ====== HOME (love message) ====== -->
+    <div class="home-page">
+      <div class="home-title">✨ my love ✨</div>
+      <div class="home-sub" id="displayNameSub">for <span id="displayNameSpan" style="font-weight:600; color:#b3406c;">you</span></div>
+
+      <!-- click/tap on this box triggers blast + next message -->
+      <div class="love-message-box" id="loveMessageBox">
+        <div class="love-message" id="loveMessageContainer">
+          <span id="messageContent"></span>
+        </div>
+      </div>
+
+      <!-- only "change name" button visible, blast button removed -->
+      <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+        <label for="toggleLogin" class="btn-secondary" style="cursor: pointer;">
+          <i class="fas fa-arrow-left"></i> change name
+        </label>
+      </div>
+      <div style="margin-top: 0.8rem; font-size: 0.7rem; color: #b68a9a; letter-spacing: 0.5px;">
+        <i class="fas fa-hand-pointer"></i> tap anywhere on the message
+      </div>
+    </div>
+
+  </div>
+
+  <!-- audio (romantic track from pixabay) -->
+  <div class="audio-container">
+    <audio id="bgAudio" loop controls>
+      <source src="https://pixabay.com/music/beautiful-plays-romantic-romantic-music-573992/" type="audio/mpeg" />
+      Your browser does not support audio.
+    </audio>
+  </div>
+
+  <script>
+    // ---- LOVE MESSAGES (multiple, total ~200 words) ----
+    const loveMessages = [
+      `My dearest <strong>${name}</strong>, every morning I wake with the thought of you, like sunlight filtering through the curtains. You are the poetry I never knew I needed, the melody that plays softly in my heart.`,
+      `In the quiet hours, I find myself smiling at memories we've yet to make. Your name is a prayer on my lips, a gentle rhythm that soothes my soul. I cherish the way you laugh, the way your eyes sparkle with mischief and warmth.`,
+      `You are the anchor that keeps me steady, and the wind that sets my spirit free. With you, I have discovered a love that is both fierce and tender, a bond that grows deeper with each passing day.`,
+      `I want to hold your hand through every season, to share cups of tea and long conversations, to build a world where our dreams intertwine. You are my home, my safe harbor, my greatest adventure.`,
+      `Thank you for being you — for your kindness, your strength, your beautiful heart. I promise to stand by you, to lift you up, and to love you with everything I am. Forever and always, my love.`
+    ];
+
+    let currentMessageIndex = 0;
+
+    // ---- helper: update message with name ----
+    function updateLoveMessage(name) {
+      const container = document.getElementById('messageContent');
+      let msg = loveMessages[currentMessageIndex % loveMessages.length];
+      msg = msg.replace(/\$\{name\}/g, name);
+      msg = msg.replace(/<strong>\$\{name\}<\/strong>/g, `<strong>${name}</strong>`);
+      container.innerHTML = msg;
+      container.innerHTML += `<br/><span style="display:block; text-align:center; margin-top:0.8rem; font-size:1.6rem; color:#e06a8a;">♥ ♥ ♥</span>`;
+    }
+
+    // ---- BLAST EFFECT (blood burst) ----
+    function triggerBlast(x, y) {
+      const container = document.getElementById('blastContainer');
+      const count = 45;
+      for (let i = 0; i < count; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'blood-drop';
+        const angle = Math.random() * 360;
+        const distance = 80 + Math.random() * 200;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance - 30;
+        drop.style.setProperty('--tx', tx + 'px');
+        drop.style.setProperty('--ty', ty + 'px');
+        drop.style.left = (x || window.innerWidth/2) + 'px';
+        drop.style.top = (y || window.innerHeight/2) + 'px';
+        drop.style.width = (8 + Math.random() * 14) + 'px';
+        drop.style.height = drop.style.width;
+        drop.style.background = `radial-gradient(circle, #cc1144, #66001a)`;
+        drop.style.borderRadius = '50% 50% 50% 0';
+        drop.style.animationDuration = (0.5 + Math.random() * 0.6) + 's';
+        drop.style.transform = `rotate(${Math.random() * 360}deg)`;
+        container.appendChild(drop);
+        setTimeout(() => drop.remove(), 1200);
+      }
+    }
+
+    // ---- handle login ----
+    function handleLogin(e) {
+      e.preventDefault();
+      const nameInput = document.getElementById('nameInput');
+      let name = nameInput.value.trim() || 'you';
+      window.currentName = name;
+
+      document.getElementById('displayNameSpan').textContent = name;
+      currentMessageIndex = 0;
+      updateLoveMessage(name);
+
+      document.getElementById('toggleLogin').checked = true;
+
+      const audio = document.getElementById('bgAudio');
+      audio.play().catch(() => {});
+
+      const card = document.querySelector('.premium-card');
+      card.style.transform = 'scale(0.98)';
+      setTimeout(() => card.style.transform = 'scale(1)', 150);
+
+      return false;
+    }
+
+    // ---- next message + blast (triggered by tap on message box) ----
+    function nextLoveAndBlast(e) {
+      const name = window.currentName || 'you';
+      currentMessageIndex = (currentMessageIndex + 1) % loveMessages.length;
+      updateLoveMessage(name);
+
+      const cx = e.clientX || window.innerWidth/2;
+      const cy = e.clientY || window.innerHeight/2;
+      triggerBlast(cx, cy);
+
+      const container = document.querySelector('.love-message-box');
+      container.style.transition = '0.1s';
+      container.style.transform = 'scale(0.98)';
+      setTimeout(() => container.style.transform = 'scale(1)', 150);
+    }
+
+    // ---- attach event listeners ----
+    document.addEventListener('DOMContentLoaded', function() {
+      const nameInput = document.getElementById('nameInput');
+      if (nameInput) nameInput.placeholder = 'e.g. Emily';
+      window.currentName = 'you';
+      createHearts();
+
+      // TAP on the message box triggers blast + new message
+      const messageBox = document.getElementById('loveMessageBox');
+      messageBox.addEventListener('click', function(e) {
+        const isHome = document.getElementById('toggleLogin').checked;
+        if (isHome) {
+          nextLoveAndBlast(e);
+        }
+      });
+
+      // auto-play audio after any click (user gesture)
+      document.addEventListener('click', function() {
+        const audio = document.getElementById('bgAudio');
+        if (audio.paused) {
+          audio.play().catch(() => {});
+        }
+      }, { once: false });
+
+      // set initial message
+      const initialMsg = document.getElementById('messageContent');
+      if (initialMsg) {
+        initialMsg.innerHTML = `✨ enter your name to begin ✨`;
+      }
+    });
+
+    // ---- floating hearts generator ----
+    function createHearts() {
+      const container = document.getElementById('heartsBg');
+      const count = 32;
+      for (let i = 0; i < count; i++) {
+        const span = document.createElement('span');
+        span.className = 'heart-float';
+        span.textContent = '♥';
+        const size = 1.4 + Math.random() * 3;
+        span.style.fontSize = size + 'rem';
+        span.style.left = Math.random() * 100 + '%';
+        span.style.top = Math.random() * 100 + '%';
+        span.style.animationDuration = (14 + Math.random() * 24) + 's';
+        span.style.animationDelay = (Math.random() * 20) + 's';
+        span.style.opacity = 0.15 + Math.random() * 0.3;
+        container.appendChild(span);
+      }
+    }
+
+    window.updateLoveMessage = updateLoveMessage;
+  </script>
+</body>
+</html>
