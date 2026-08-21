@@ -1,480 +1,1608 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Love · Blossom & Blast</title>
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,700&family=Quicksand:wght@300;400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <style>
-    /* ----- reset & base ----- */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Baridih High School – Attendance</title>
 
-    body {
-      font-family: 'Quicksand', sans-serif;
-      background: linear-gradient(145deg, #fff5f7 0%, #ffe3e8 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow-x: hidden;
-      position: relative;
-      padding: 1rem;
-    }
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
 
-    /* ----- floating hearts background (always) ----- */
-    .hearts-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
+    <!-- jsPDF & AutoTable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js">
+    </script>
 
-    .heart-float {
-      position: absolute;
-      color: rgba(255, 105, 180, 0.25);
-      font-size: 2.2rem;
-      animation: floatHeart 20s infinite alternate ease-in-out;
-      user-select: none;
-    }
+    <style>
+        /* ─── RESET & BASE ─── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    @keyframes floatHeart {
-      0% { transform: translateY(0px) rotate(0deg) scale(1); opacity: 0.2; }
-      100% { transform: translateY(-140px) rotate(25deg) scale(1.4); opacity: 0.6; }
-    }
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --primary-bg: #eef2ff;
+            --glass-bg: rgba(255, 255, 255, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.30);
+            --shadow: 0 12px 40px rgba(79, 70, 229, 0.12);
+            --shadow-hover: 0 20px 56px rgba(79, 70, 229, 0.18);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --radius-xs: 8px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --transition: 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --green: #10b981;
+            --green-bg: #ecfdf5;
+            --red: #ef4444;
+            --red-bg: #fef2f2;
+            --amber: #f59e0b;
+            --amber-bg: #fffbeb;
+            --max-width: 1200px;
+        }
 
-    /* ----- main card premium glass ----- */
-    .premium-card {
-      position: relative;
-      z-index: 10;
-      width: 100%;
-      max-width: 560px;
-      background: rgba(255, 245, 248, 0.5);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-radius: 56px;
-      padding: 2.5rem 1.8rem 2.8rem;
-      box-shadow: 0 30px 60px rgba(200, 80, 120, 0.2), 0 10px 30px rgba(255, 182, 193, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      transition: all 0.3s ease;
-      text-align: center;
-    }
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
 
-    /* toggle login / home */
-    .toggle-login { display: none; }
-    .login-page, .home-page { transition: opacity 0.5s ease, transform 0.4s ease; }
-    .login-page { display: block; }
-    .home-page { display: none; }
-    .toggle-login:checked ~ .login-page { display: none; }
-    .toggle-login:checked ~ .home-page { display: block; }
+        body {
+            font-family: var(--font);
+            background: linear-gradient(145deg, #f8faff 0%, #eef2ff 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 20px 16px 40px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 0;
+        }
 
-    /* ----- login form ----- */
-    .login-title {
-      font-family: 'Playfair Display', serif;
-      font-weight: 700;
-      font-size: 2.4rem;
-      color: #b3406c;
-      letter-spacing: 1px;
-      margin-bottom: 0.3rem;
-    }
-    .login-sub {
-      color: #a55a7a;
-      font-weight: 300;
-      letter-spacing: 1px;
-      font-size: 1rem;
-      margin-bottom: 2rem;
-      opacity: 0.8;
-    }
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-      margin-bottom: 1.8rem;
-    }
-    .input-group label {
-      font-weight: 400;
-      color: #7a4a5e;
-      letter-spacing: 0.5px;
-      font-size: 0.95rem;
-    }
-    .input-group input {
-      padding: 1rem 1.5rem;
-      border-radius: 60px;
-      border: 1px solid rgba(200, 120, 150, 0.3);
-      background: rgba(255, 255, 255, 0.5);
-      backdrop-filter: blur(4px);
-      font-size: 1.1rem;
-      font-family: 'Quicksand', sans-serif;
-      outline: none;
-      transition: 0.3s;
-      color: #3d2a33;
-      box-shadow: inset 0 2px 6px rgba(255, 200, 210, 0.2);
-    }
-    .input-group input:focus {
-      border-color: #f28b9f;
-      background: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 0 0 4px rgba(255, 130, 160, 0.15);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #f27a9f, #e05e85);
-      border: none;
-      padding: 1rem 2rem;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 1.2rem;
-      color: white;
-      letter-spacing: 1px;
-      cursor: pointer;
-      box-shadow: 0 8px 20px rgba(220, 80, 120, 0.3);
-      transition: 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-    }
-    .btn-primary:hover { transform: scale(1.02); box-shadow: 0 12px 28px rgba(220, 80, 120, 0.45); }
+        .app {
+            max-width: var(--max-width);
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 28px 24px 36px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
 
-    /* ----- home page love message ----- */
-    .home-title {
-      font-family: 'Playfair Display', serif;
-      font-weight: 700;
-      font-size: 2.6rem;
-      color: #b13e66;
-      margin-bottom: 0.1rem;
-    }
-    .home-sub {
-      font-size: 1.1rem;
-      color: #7d4a5e;
-      font-weight: 300;
-      margin-bottom: 1.2rem;
-      border-bottom: 1px dashed rgba(200, 100, 130, 0.2);
-      padding-bottom: 0.8rem;
-    }
-    .love-message-box {
-      background: rgba(255, 240, 245, 0.4);
-      backdrop-filter: blur(6px);
-      border-radius: 40px;
-      padding: 1.5rem 1.2rem;
-      margin: 1rem 0 1.8rem;
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      box-shadow: inset 0 0 20px rgba(255, 182, 193, 0.1);
-      max-height: 380px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: #f2a0b5 #ffe3e8;
-      cursor: pointer;
-    }
-    .love-message-box::-webkit-scrollbar { width: 5px; }
-    .love-message-box::-webkit-scrollbar-track { background: #ffe3e8; border-radius: 20px; }
-    .love-message-box::-webkit-scrollbar-thumb { background: #f2a0b5; border-radius: 20px; }
+        @media (max-width: 600px) {
+            body {
+                padding: 12px 8px 24px;
+            }
+            .app {
+                padding: 18px 14px 24px;
+                border-radius: 16px;
+            }
+        }
 
-    .love-message {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      font-weight: 400;
-      color: #972f5a;
-      line-height: 1.6;
-      text-align: left;
-      padding: 0 0.2rem;
-    }
-    .love-message strong {
-      font-weight: 700;
-      color: #b13e66;
-      background: linear-gradient(135deg, #f7b0c0, #f28aab);
-      padding: 0.1rem 0.8rem;
-      border-radius: 60px;
-      display: inline-block;
-      box-shadow: 0 2px 12px rgba(220, 80, 120, 0.15);
-    }
-    .heart-icon { color: #e04a7a; margin: 0 4px; display: inline-block; animation: pulseHeart 1.8s infinite alternate; }
-    @keyframes pulseHeart { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(1.2); opacity: 1; } }
+        /* ─── HEADER ─── */
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(79, 70, 229, 0.10);
+            margin-bottom: 24px;
+            text-align: center;
+        }
 
-    .btn-secondary {
-      background: transparent;
-      border: 1.5px solid #d47a97;
-      color: #9b4a6a;
-      padding: 0.7rem 2rem;
-      border-radius: 60px;
-      font-weight: 500;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: 0.3s;
-      backdrop-filter: blur(4px);
-      background: rgba(255, 255, 255, 0.3);
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .btn-secondary:hover { background: rgba(255, 200, 215, 0.4); border-color: #b85a7a; transform: scale(1.02); }
+        .header-logo {
+            max-width: 80px;
+            height: auto;
+            margin-bottom: 4px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            background: #f8faff;
+            padding: 4px;
+        }
 
-    /* ----- audio player (premium minimal) ----- */
-    .audio-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 99;
-      opacity: 0.6;
-      transition: 0.3s;
-    }
-    .audio-container:hover { opacity: 1; }
-    .audio-container audio {
-      width: 140px;
-      border-radius: 60px;
-      background: rgba(255, 220, 230, 0.4);
-      backdrop-filter: blur(4px);
-    }
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
 
-    /* ----- BLAST EFFECT (blood burst) ----- */
-    .blast-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 9999;
-      overflow: hidden;
-    }
-    .blood-drop {
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      background: radial-gradient(circle, #b3002e, #66001a);
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(45deg);
-      animation: bloodSplat 0.9s ease-out forwards;
-      box-shadow: 0 0 12px #cc1144;
-    }
-    @keyframes bloodSplat {
-      0% { opacity: 1; transform: translate(0,0) scale(0.5) rotate(45deg); }
-      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.8) rotate(120deg); }
-    }
+        .school-name {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
 
-    /* responsive */
-    @media (max-width: 500px) {
-      .premium-card { padding: 1.8rem 1rem 2rem; border-radius: 36px; }
-      .login-title { font-size: 2rem; }
-      .home-title { font-size: 2rem; }
-      .love-message { font-size: 1.1rem; }
-    }
-  </style>
+        .school-sub {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.01em;
+        }
+
+        .school-meta {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px 18px;
+            margin-top: 2px;
+        }
+
+        .school-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .header-date {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--primary);
+            background: var(--primary-bg);
+            padding: 6px 16px;
+            border-radius: 40px;
+            white-space: nowrap;
+            border: 1px solid rgba(79, 70, 229, 0.12);
+            flex-shrink: 0;
+            margin-top: 4px;
+            align-self: center;
+        }
+
+        @media (max-width: 600px) {
+            .header-logo {
+                max-width: 60px;
+            }
+            .school-name {
+                font-size: 1.4rem;
+            }
+            .school-sub {
+                font-size: 0.9rem;
+            }
+            .school-meta {
+                font-size: 0.75rem;
+                gap: 2px 12px;
+            }
+            .header-date {
+                font-size: 0.8rem;
+                padding: 4px 12px;
+            }
+        }
+
+        /* ─── STATS CARDS ─── */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.60);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.50);
+            border-radius: var(--radius-sm);
+            padding: 16px 18px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-top: 2px;
+        }
+
+        .stat-card.total .stat-number {
+            color: var(--primary);
+        }
+        .stat-card.present .stat-number {
+            color: var(--green);
+        }
+        .stat-card.absent .stat-number {
+            color: var(--red);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 1.2rem;
+            opacity: 0.5;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        @media (max-width: 480px) {
+            .stats {
+                gap: 10px;
+            }
+            .stat-card {
+                padding: 12px 10px;
+            }
+            .stat-number {
+                font-size: 1.7rem;
+            }
+            .stat-label {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* ─── SEARCH + FILTER ─── */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 22px;
+            align-items: center;
+        }
+
+        .search-wrap {
+            flex: 1 1 220px;
+            position: relative;
+            min-width: 160px;
+        }
+
+        .search-wrap input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 1px solid rgba(79, 70, 229, 0.15);
+            border-radius: 40px;
+            font-size: 0.92rem;
+            font-family: var(--font);
+            background: rgba(255, 255, 255, 0.70);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: var(--transition);
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .search-wrap input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .search-wrap input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+            background: rgba(255, 255, 255, 0.90);
+        }
+
+        .search-wrap .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1rem;
+            pointer-events: none;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 18px;
+            border-radius: 40px;
+            border: 1px solid rgba(79, 70, 229, 0.15);
+            background: rgba(255, 255, 255, 0.50);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            font-size: 0.82rem;
+            font-weight: 500;
+            font-family: var(--font);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            touch-action: manipulation;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.80);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        @media (max-width: 480px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-wrap {
+                flex: 1 1 auto;
+            }
+            .filter-group {
+                justify-content: center;
+            }
+            .filter-btn {
+                flex: 1;
+                text-align: center;
+                padding: 10px 12px;
+                font-size: 0.78rem;
+            }
+        }
+
+        /* ─── STUDENT LIST ─── */
+        .student-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 4px;
+            margin-bottom: 28px;
+        }
+
+        /* Desktop table */
+        .student-table-wrap {
+            display: none;
+            overflow-x: auto;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(79, 70, 229, 0.06);
+            background: rgba(255, 255, 255, 0.40);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 480px;
+        }
+
+        .student-table th {
+            text-align: left;
+            padding: 14px 18px;
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(79, 70, 229, 0.08);
+            background: rgba(255, 255, 255, 0.30);
+        }
+
+        .student-table td {
+            padding: 12px 18px;
+            border-bottom: 1px solid rgba(79, 70, 229, 0.04);
+            vertical-align: middle;
+        }
+
+        .student-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .student-table .roll-col {
+            font-weight: 600;
+            color: var(--text-secondary);
+            width: 80px;
+        }
+        .student-table .name-col {
+            font-weight: 500;
+        }
+        .student-table .status-col {
+            width: 120px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .status-badge.present {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+        .status-badge.absent {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+
+        .toggle-btn {
+            padding: 6px 18px;
+            border-radius: 40px;
+            border: none;
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: var(--transition);
+            touch-action: manipulation;
+            background: var(--primary-bg);
+            color: var(--primary);
+        }
+
+        .toggle-btn:hover {
+            transform: scale(1.02);
+        }
+        .toggle-btn:active {
+            transform: scale(0.96);
+        }
+
+        .toggle-btn.absent-btn {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+
+        /* Mobile cards */
+        .student-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .student-card {
+            background: rgba(255, 255, 255, 0.60);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.50);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .student-card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .student-card .card-roll {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+        }
+
+        .student-card .card-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .student-card .card-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+        }
+
+        .student-card .card-status .status-badge {
+            font-size: 0.7rem;
+            padding: 3px 12px;
+        }
+
+        .student-card .card-status .toggle-btn {
+            font-size: 0.7rem;
+            padding: 6px 16px;
+            min-height: 40px;
+            min-width: 64px;
+        }
+
+        .student-card.absent-card {
+            border-color: rgba(239, 68, 68, 0.20);
+            background: rgba(254, 242, 242, 0.60);
+        }
+
+        @media (min-width: 768px) {
+            .student-table-wrap {
+                display: block;
+            }
+            .student-cards {
+                display: none;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .student-table-wrap {
+                display: none;
+            }
+            .student-cards {
+                display: grid;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .student-cards {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .student-card {
+                padding: 12px 12px 14px;
+            }
+            .student-card .card-name {
+                font-size: 0.9rem;
+            }
+            .student-card .card-status .toggle-btn {
+                font-size: 0.65rem;
+                padding: 5px 12px;
+                min-height: 36px;
+                min-width: 56px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .student-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            grid-column: 1 / -1;
+        }
+
+        /* ─── BOTTOM ACTIONS ─── */
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .actions .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 40px;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: var(--transition);
+            touch-action: manipulation;
+            text-decoration: none;
+            flex: 1 1 auto;
+            min-width: 140px;
+            min-height: 54px;
+            background: rgba(255, 255, 255, 0.60);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(79, 70, 229, 0.10);
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+
+        .actions .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+        .actions .btn:active {
+            transform: scale(0.97);
+        }
+
+        .actions .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.25);
+        }
+
+        .actions .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 8px 28px rgba(79, 70, 229, 0.35);
+        }
+
+        .actions .btn-success {
+            background: #0f973d;
+            color: #fff;
+            border-color: #0f973d;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);
+        }
+
+        .actions .btn-success:hover {
+            background: #0a7a32;
+            box-shadow: 0 8px 28px rgba(16, 185, 129, 0.35);
+        }
+
+        .actions .btn-danger {
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--red);
+            border-color: rgba(239, 68, 68, 0.15);
+        }
+
+        .actions .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .actions .btn svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 600px) {
+            .actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .actions .btn {
+                width: 100%;
+                min-height: 50px;
+                font-size: 0.9rem;
+                padding: 12px 20px;
+            }
+        }
+
+        /* ─── TOAST / NOTIFICATION ─── */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 90%;
+            max-width: 440px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.50);
+            border-radius: var(--radius-sm);
+            padding: 16px 22px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.10);
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            opacity: 0;
+            transform: translateY(20px) scale(0.96);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .toast .toast-icon {
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .toast .toast-msg {
+            flex: 1;
+            font-size: 0.92rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .toast .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 4px;
+            touch-action: manipulation;
+        }
+
+        .toast.success .toast-icon {
+            color: var(--green);
+        }
+        .toast.error .toast-icon {
+            color: var(--red);
+        }
+        .toast.info .toast-icon {
+            color: var(--primary);
+        }
+        .toast.warning .toast-icon {
+            color: var(--amber);
+        }
+
+        /* ─── MODAL ─── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.40);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.50);
+            border-radius: var(--radius);
+            max-width: 480px;
+            width: 100%;
+            padding: 32px 28px 28px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.15);
+            transform: scale(0.92) translateY(12px);
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+
+        .modal-overlay.open .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal .modal-icon {
+            font-size: 2.8rem;
+            margin-bottom: 8px;
+        }
+
+        .modal h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .modal p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .modal .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .modal .modal-actions .btn {
+            min-width: 100px;
+            padding: 12px 24px;
+            border-radius: 40px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: var(--transition);
+            touch-action: manipulation;
+        }
+
+        .modal .modal-actions .btn-secondary {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-secondary);
+        }
+
+        .modal .modal-actions .btn-secondary:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        .modal .modal-actions .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .modal .modal-actions .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .modal .modal-actions .btn-success {
+            background: #0f973d;
+            color: #fff;
+        }
+
+        .modal .modal-actions .btn-success:hover {
+            background: #0a7a32;
+        }
+
+        .modal .modal-actions .btn-danger {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .modal .modal-actions .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        @media (max-width: 480px) {
+            .modal {
+                padding: 24px 18px 20px;
+            }
+            .modal h3 {
+                font-size: 1.1rem;
+            }
+            .modal .modal-actions .btn {
+                min-width: 80px;
+                padding: 10px 18px;
+                font-size: 0.82rem;
+            }
+        }
+
+        /* ─── UTILITY ─── */
+        .hidden {
+            display: none !important;
+        }
+
+        .mt-2 {
+            margin-top: 8px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(79, 70, 229, 0.20);
+            border-radius: 40px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(79, 70, 229, 0.30);
+        }
+
+        @media print {
+            body {
+                background: #fff;
+                padding: 20px;
+            }
+            .app {
+                box-shadow: none;
+                border: none;
+                background: #fff;
+                backdrop-filter: none;
+            }
+            .actions,
+            .controls,
+            .toast-container,
+            .modal-overlay {
+                display: none !important;
+            }
+            .student-table-wrap {
+                display: block !important;
+            }
+            .student-cards {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <!-- floating hearts background -->
-  <div class="hearts-bg" id="heartsBg"></div>
+    <div class="app" id="app">
 
-  <!-- blast container (dynamic) -->
-  <div class="blast-container" id="blastContainer"></div>
+        <!-- HEADER -->
+        <header class="header">
+            <img src="https://user25838.na.imgto.link/public/20260821/6635.avif"
+            alt="School Logo"
+            class="header-logo"
+            crossOrigin="anonymous"
+            onerror="this.style.display='none'" />
+            <div class="header-left">
+                <div class="school-name">Baridih High School</div>
+                <div class="school-sub">Student Attendance Management</div>
+                <div class="school-meta">
+                    <span>📘 Class 9-A</span>
+                    <span>👨‍🏫 Teacher: Ashok Sir</span>
+                    <span>📍 Jamshedpur, Jharkhand</span>
+                </div>
+            </div>
+            <div class="header-date" id="currentDate"></div>
+        </header>
 
-  <!-- main card -->
-  <div class="premium-card">
+        <!-- STATS -->
+        <section class="stats" id="stats">
+            <div class="stat-card total">
+                <span class="stat-icon">👥</span>
+                <div class="stat-label">Total Students</div>
+                <div class="stat-number" id="totalCount">40</div>
+            </div>
+            <div class="stat-card present">
+                <span class="stat-icon">✅</span>
+                <div class="stat-label">Present</div>
+                <div class="stat-number" id="presentCount">40</div>
+            </div>
+            <div class="stat-card absent">
+                <span class="stat-icon">❌</span>
+                <div class="stat-label">Absent</div>
+                <div class="stat-number" id="absentCount">0</div>
+            </div>
+        </section>
 
-    <input type="checkbox" id="toggleLogin" class="toggle-login" />
-
-    <!-- ====== LOGIN ====== -->
-    <div class="login-page">
-      <div class="login-title">✦ welcome ✦</div>
-      <div class="login-sub">enter your name to begin</div>
-      <form id="loginForm" onsubmit="return handleLogin(event)">
-        <div class="input-group">
-          <label><i class="fas fa-pen-fancy" style="color:#c45a7a; margin-right:6px;"></i> Your name</label>
-          <input type="text" id="nameInput" placeholder="e.g. Isabella" required autofocus />
+        <!-- SEARCH + FILTER -->
+        <div class="controls">
+            <div class="search-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search by roll number or name..." autocomplete="off" />
+            </div>
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all">All Students</button>
+                <button class="filter-btn" data-filter="present">Present</button>
+                <button class="filter-btn" data-filter="absent">Absent</button>
+            </div>
         </div>
-        <button type="submit" class="btn-primary"><i class="fas fa-arrow-right"></i> enter</button>
-      </form>
-      <div style="margin-top: 1.8rem; font-size: 0.8rem; color: #b68a9a; letter-spacing: 1px;">
-        <i class="fas fa-heart" style="color:#e06a8a;"></i> love awaits
-      </div>
+
+        <!-- STUDENT LIST -->
+        <div id="studentContainer">
+            <div class="student-table-wrap" id="tableWrap">
+                <table class="student-table" id="studentTable">
+                    <thead>
+                        <tr>
+                            <th>Roll No.</th>
+                            <th>Student Name</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <div class="student-cards" id="cardContainer"></div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="actions">
+            <button class="btn btn-primary" id="downloadPdfBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download PDF
+            </button>
+            <button class="btn btn-success" id="whatsappBtn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Share on WhatsApp
+            </button>
+            <button class="btn btn-danger" id="resetBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9m0 0v6m0-6h-6"/></svg>
+                Reset Attendance
+            </button>
+        </div>
+
+        <div style="margin-top:20px;text-align:center;font-size:0.7rem;color:var(--text-muted);opacity:0.6;letter-spacing:0.02em;">
+            &copy; 2026 Baridih High School &bull; Attendance System
+        </div>
     </div>
 
-    <!-- ====== HOME (love message) ====== -->
-    <div class="home-page">
-      <div class="home-title">✨ my love ✨</div>
-      <div class="home-sub" id="displayNameSub">for <span id="displayNameSpan" style="font-weight:600; color:#b3406c;">you</span></div>
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
 
-      <!-- click/tap on this box triggers blast + next message -->
-      <div class="love-message-box" id="loveMessageBox">
-        <div class="love-message" id="loveMessageContainer">
-          <span id="messageContent"></span>
+    <!-- MODAL OVERLAY -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modalContent">
+            <div class="modal-icon" id="modalIcon">⚠️</div>
+            <h3 id="modalTitle">Are you sure?</h3>
+            <p id="modalMessage">This action cannot be undone.</p>
+            <div class="modal-actions" id="modalActions">
+                <button class="btn btn-secondary" id="modalCancel">Cancel</button>
+                <button class="btn btn-primary" id="modalConfirm">Confirm</button>
+            </div>
         </div>
-      </div>
-
-      <!-- only "change name" button visible -->
-      <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-        <label for="toggleLogin" class="btn-secondary" style="cursor: pointer;">
-          <i class="fas fa-arrow-left"></i> change name
-        </label>
-      </div>
-      <div style="margin-top: 0.8rem; font-size: 0.7rem; color: #b68a9a; letter-spacing: 0.5px;">
-        <i class="fas fa-hand-pointer"></i> tap anywhere on the message
-      </div>
     </div>
 
-  </div>
+    <script>
+        (function() {
+            'use strict';
 
-  <!-- ====== MUSIC (YOUR LINK + FALLBACK) ====== -->
-  <div class="audio-container">
-    <audio id="bgAudio" loop controls>
-      <!-- Your GitHub music link (raw version) -->
-      <source src="https://raw.githubusercontent.com/rajpradhanmedia-design/bhsschool/main/paulyudin-romantic-romantic-music-573992.mp3" type="audio/mpeg" />
-      <!-- Fallback to working Pixabay link if yours fails -->
-      <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_8c9f8e0e3c.mp3" type="audio/mpeg" />
-      Your browser does not support audio.
-    </audio>
-  </div>
+            // ─── CONFIG ───
+            const SCHOOL = 'Baridih High School';
+            const CLASS = '9-A';
+            const TEACHER = 'Ashok Sir';
+            const LOCATION = 'Jamshedpur, Jharkhand';
+            const TOTAL = 40;
+            const LOGO_URL = 'https://user25838.na.imgto.link/public/20260821/6635.avif';
 
-  <script>
-    // ---- LOVE MESSAGES (multiple, total ~200 words) ----
-    const loveMessages = [
-      `My dearest <strong>${name}</strong>, every morning I wake with the thought of you, like sunlight filtering through the curtains. You are the poetry I never knew I needed, the melody that plays softly in my heart.`,
-      `In the quiet hours, I find myself smiling at memories we've yet to make. Your name is a prayer on my lips, a gentle rhythm that soothes my soul. I cherish the way you laugh, the way your eyes sparkle with mischief and warmth.`,
-      `You are the anchor that keeps me steady, and the wind that sets my spirit free. With you, I have discovered a love that is both fierce and tender, a bond that grows deeper with each passing day.`,
-      `I want to hold your hand through every season, to share cups of tea and long conversations, to build a world where our dreams intertwine. You are my home, my safe harbor, my greatest adventure.`,
-      `Thank you for being you — for your kindness, your strength, your beautiful heart. I promise to stand by you, to lift you up, and to love you with everything I am. Forever and always, my love.`
-    ];
+            // ─── DATE HELPERS ───
+            function formatDate(date) {
+                const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+                const d = date.getDate();
+                const m = months[date.getMonth()];
+                const y = date.getFullYear();
+                return d + ' ' + m + ' ' + y;
+            }
 
-    let currentMessageIndex = 0;
+            function formatDateForFilename(date) {
+                const dd = String(date.getDate()).padStart(2, '0');
+                const mm = String(date.getMonth() + 1).padStart(2, '0');
+                const yyyy = date.getFullYear();
+                return dd + '-' + mm + '-' + yyyy;
+            }
 
-    // ---- helper: update message with name ----
-    function updateLoveMessage(name) {
-      const container = document.getElementById('messageContent');
-      let msg = loveMessages[currentMessageIndex % loveMessages.length];
-      msg = msg.replace(/\$\{name\}/g, name);
-      msg = msg.replace(/<strong>\$\{name\}<\/strong>/g, `<strong>${name}</strong>`);
-      container.innerHTML = msg;
-      container.innerHTML += `<br/><span style="display:block; text-align:center; margin-top:0.8rem; font-size:1.6rem; color:#e06a8a;">♥ ♥ ♥</span>`;
-    }
+            const today = new Date();
+            const TODAY_STR = formatDate(today);
+            const TODAY_FILENAME = formatDateForFilename(today);
 
-    // ---- BLAST EFFECT (blood burst) ----
-    function triggerBlast(x, y) {
-      const container = document.getElementById('blastContainer');
-      const count = 45;
-      for (let i = 0; i < count; i++) {
-        const drop = document.createElement('div');
-        drop.className = 'blood-drop';
-        const angle = Math.random() * 360;
-        const distance = 80 + Math.random() * 200;
-        const tx = Math.cos(angle) * distance;
-        const ty = Math.sin(angle) * distance - 30;
-        drop.style.setProperty('--tx', tx + 'px');
-        drop.style.setProperty('--ty', ty + 'px');
-        drop.style.left = (x || window.innerWidth/2) + 'px';
-        drop.style.top = (y || window.innerHeight/2) + 'px';
-        drop.style.width = (8 + Math.random() * 14) + 'px';
-        drop.style.height = drop.style.width;
-        drop.style.background = `radial-gradient(circle, #cc1144, #66001a)`;
-        drop.style.borderRadius = '50% 50% 50% 0';
-        drop.style.animationDuration = (0.5 + Math.random() * 0.6) + 's';
-        drop.style.transform = `rotate(${Math.random() * 360}deg)`;
-        container.appendChild(drop);
-        setTimeout(() => drop.remove(), 1200);
-      }
-    }
+            // ─── STUDENT DATA ───
+            let students = [];
+            for (let i = 1; i <= TOTAL; i++) {
+                students.push({
+                    roll: i,
+                    name: 'Student Name ' + i,
+                    absent: false
+                });
+            }
 
-    // ---- handle login ----
-    function handleLogin(e) {
-      e.preventDefault();
-      const nameInput = document.getElementById('nameInput');
-      let name = nameInput.value.trim() || 'you';
-      window.currentName = name;
+            // ─── STATE ───
+            let currentFilter = 'all';
+            let searchQuery = '';
 
-      document.getElementById('displayNameSpan').textContent = name;
-      currentMessageIndex = 0;
-      updateLoveMessage(name);
+            // ─── DOM REFS ───
+            const totalEl = document.getElementById('totalCount');
+            const presentEl = document.getElementById('presentCount');
+            const absentEl = document.getElementById('absentCount');
+            const tableBody = document.getElementById('tableBody');
+            const cardContainer = document.getElementById('cardContainer');
+            const searchInput = document.getElementById('searchInput');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const dateEl = document.getElementById('currentDate');
+            const toastContainer = document.getElementById('toastContainer');
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalCancel = document.getElementById('modalCancel');
+            const modalConfirm = document.getElementById('modalConfirm');
 
-      document.getElementById('toggleLogin').checked = true;
+            // ─── SET DATE ───
+            dateEl.textContent = TODAY_STR;
 
-      const audio = document.getElementById('bgAudio');
-      audio.play().catch(() => {});
+            // ─── TOAST SYSTEM ───
+            function showToast(message, type) {
+                type = type || 'info';
+                const icons = {
+                    success: '✅',
+                    error: '❌',
+                    warning: '⚠️',
+                    info: 'ℹ️'
+                };
+                const icon = icons[type] || 'ℹ️';
+                const toast = document.createElement('div');
+                toast.className = 'toast ' + type;
+                toast.innerHTML = `
+              <span class="toast-icon">${icon}</span>
+              <span class="toast-msg">${message}</span>
+              <button class="toast-close" aria-label="Dismiss">&times;</button>
+            `;
+                toastContainer.appendChild(toast);
+                requestAnimationFrame(() => {
+                    toast.classList.add('show');
+                });
+                toast.querySelector('.toast-close').addEventListener('click', function() {
+                    dismissToast(toast);
+                });
+                const timer = setTimeout(() => {
+                    dismissToast(toast);
+                }, 4000);
+                toast._timer = timer;
+                return toast;
+            }
 
-      const card = document.querySelector('.premium-card');
-      card.style.transform = 'scale(0.98)';
-      setTimeout(() => card.style.transform = 'scale(1)', 150);
+            function dismissToast(toast) {
+                if (!toast || !toast.parentNode) return;
+                toast.classList.remove('show');
+                if (toast._timer) clearTimeout(toast._timer);
+                setTimeout(() => {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 350);
+            }
 
-      return false;
-    }
+            // ─── MODAL SYSTEM ───
+            let modalResolve = null;
 
-    // ---- next message + blast (triggered by tap on message box) ----
-    function nextLoveAndBlast(e) {
-      const name = window.currentName || 'you';
-      currentMessageIndex = (currentMessageIndex + 1) % loveMessages.length;
-      updateLoveMessage(name);
+            function showModal(icon, title, message, confirmText, cancelText, isDanger) {
+                return new Promise((resolve) => {
+                    modalIcon.textContent = icon || '⚠️';
+                    modalTitle.textContent = title || 'Are you sure?';
+                    modalMessage.textContent = message || 'This action cannot be undone.';
+                    modalConfirm.textContent = confirmText || 'Confirm';
+                    modalCancel.textContent = cancelText || 'Cancel';
+                    if (isDanger) {
+                        modalConfirm.className = 'btn btn-danger';
+                    } else {
+                        modalConfirm.className = 'btn btn-primary';
+                    }
+                    modalOverlay.classList.add('open');
+                    modalResolve = resolve;
+                });
+            }
 
-      const cx = e.clientX || window.innerWidth/2;
-      const cy = e.clientY || window.innerHeight/2;
-      triggerBlast(cx, cy);
+            function closeModal(result) {
+                modalOverlay.classList.remove('open');
+                if (modalResolve) {
+                    modalResolve(result);
+                    modalResolve = null;
+                }
+            }
 
-      const container = document.querySelector('.love-message-box');
-      container.style.transition = '0.1s';
-      container.style.transform = 'scale(0.98)';
-      setTimeout(() => container.style.transform = 'scale(1)', 150);
-    }
+            modalCancel.addEventListener('click', function() {
+                closeModal(false);
+            });
+            modalConfirm.addEventListener('click', function() {
+                closeModal(true);
+            });
+            modalOverlay.addEventListener('click', function(e) {
+                if (e.target === modalOverlay) {
+                    closeModal(false);
+                }
+            });
 
-    // ---- attach event listeners ----
-    document.addEventListener('DOMContentLoaded', function() {
-      const nameInput = document.getElementById('nameInput');
-      if (nameInput) nameInput.placeholder = 'e.g. Emily';
-      window.currentName = 'you';
-      createHearts();
+            // ─── UPDATE STATS ───
+            function updateStats() {
+                const total = students.length;
+                const absent = students.filter(s => s.absent).length;
+                const present = total - absent;
+                totalEl.textContent = total;
+                presentEl.textContent = present;
+                absentEl.textContent = absent;
+            }
 
-      // TAP on the message box triggers blast + new message
-      const messageBox = document.getElementById('loveMessageBox');
-      messageBox.addEventListener('click', function(e) {
-        const isHome = document.getElementById('toggleLogin').checked;
-        if (isHome) {
-          nextLoveAndBlast(e);
-        }
-      });
+            // ─── RENDER ───
+            function render() {
+                const query = searchQuery.trim().toLowerCase();
+                let filtered = students;
 
-      // auto-play audio after any click (user gesture)
-      document.addEventListener('click', function() {
-        const audio = document.getElementById('bgAudio');
-        if (audio.paused) {
-          audio.play().catch(() => {});
-        }
-      }, { once: false });
+                if (query) {
+                    filtered = filtered.filter(s =>
+                        String(s.roll).includes(query) ||
+                        s.name.toLowerCase().includes(query)
+                    );
+                }
 
-      // set initial message
-      const initialMsg = document.getElementById('messageContent');
-      if (initialMsg) {
-        initialMsg.innerHTML = `✨ enter your name to begin ✨`;
-      }
-    });
+                if (currentFilter === 'present') {
+                    filtered = filtered.filter(s => !s.absent);
+                } else if (currentFilter === 'absent') {
+                    filtered = filtered.filter(s => s.absent);
+                }
 
-    // ---- floating hearts generator ----
-    function createHearts() {
-      const container = document.getElementById('heartsBg');
-      const count = 32;
-      for (let i = 0; i < count; i++) {
-        const span = document.createElement('span');
-        span.className = 'heart-float';
-        span.textContent = '♥';
-        const size = 1.4 + Math.random() * 3;
-        span.style.fontSize = size + 'rem';
-        span.style.left = Math.random() * 100 + '%';
-        span.style.top = Math.random() * 100 + '%';
-        span.style.animationDuration = (14 + Math.random() * 24) + 's';
-        span.style.animationDelay = (Math.random() * 20) + 's';
-        span.style.opacity = 0.15 + Math.random() * 0.3;
-        container.appendChild(span);
-      }
-    }
+                renderTable(filtered);
+                renderCards(filtered);
 
-    window.updateLoveMessage = updateLoveMessage;
-  </script>
+                const tableWrap = document.getElementById('tableWrap');
+                const cardWrap = document.getElementById('cardContainer');
+                if (filtered.length === 0) {
+                    const msg = document.createElement('div');
+                    msg.className = 'no-results';
+                    msg.textContent = 'No students match your search or filter.';
+                    const existing = tableWrap.querySelector('.no-results');
+                    if (!existing) {
+                        const clone = msg.cloneNode(true);
+                        tableWrap.appendChild(clone);
+                        const clone2 = msg.cloneNode(true);
+                        cardWrap.appendChild(clone2);
+                    }
+                } else {
+                    tableWrap.querySelectorAll('.no-results').forEach(el => el.remove());
+                    cardWrap.querySelectorAll('.no-results').forEach(el => el.remove());
+                }
+
+                updateStats();
+            }
+
+            function renderTable(filtered) {
+                const tbody = tableBody;
+                tbody.innerHTML = '';
+                filtered.forEach(s => {
+                    const tr = document.createElement('tr');
+                    const statusText = s.absent ? 'ABSENT' : 'PRESENT';
+                    const statusClass = s.absent ? 'absent' : 'present';
+                    const btnText = s.absent ? 'Mark Present' : 'Mark Absent';
+                    const btnClass = s.absent ? 'toggle-btn absent-btn' : 'toggle-btn';
+
+                    tr.innerHTML = `
+                <td class="roll-col">${String(s.roll).padStart(2, '0')}</td>
+                <td class="name-col">${s.name}</td>
+                <td class="status-col"><span class="status-badge ${statusClass}">${statusText}</span></td>
+                <td><button class="${btnClass}" data-roll="${s.roll}">${btnText}</button></td>
+              `;
+                    tbody.appendChild(tr);
+                });
+
+                tbody.querySelectorAll('.toggle-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        const roll = parseInt(this.getAttribute('data-roll'), 10);
+                        toggleAttendance(roll);
+                    });
+                });
+            }
+
+            function renderCards(filtered) {
+                const container = cardContainer;
+                container.innerHTML = '';
+                filtered.forEach(s => {
+                    const card = document.createElement('div');
+                    card.className = 'student-card' + (s.absent ? ' absent-card' : '');
+                    const statusText = s.absent ? 'ABSENT' : 'PRESENT';
+                    const statusClass = s.absent ? 'absent' : 'present';
+                    const btnText = s.absent ? 'Mark Present' : 'Mark Absent';
+                    const btnClass = s.absent ? 'toggle-btn absent-btn' : 'toggle-btn';
+
+                    card.innerHTML = `
+                <div class="card-roll">Roll No. ${String(s.roll).padStart(2, '0')}</div>
+                <div class="card-name">${s.name}</div>
+                <div class="card-status">
+                  <span class="status-badge ${statusClass}">${statusText}</span>
+                  <button class="${btnClass}" data-roll="${s.roll}">${btnText}</button>
+                </div>
+              `;
+                    container.appendChild(card);
+                });
+
+                container.querySelectorAll('.toggle-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        const roll = parseInt(this.getAttribute('data-roll'), 10);
+                        toggleAttendance(roll);
+                    });
+                });
+            }
+
+            // ─── TOGGLE ATTENDANCE (silent) ───
+            function toggleAttendance(roll) {
+                const student = students.find(s => s.roll === roll);
+                if (!student) return;
+                student.absent = !student.absent;
+                render();
+            }
+
+            // ─── RESET ───
+            async function resetAttendance() {
+                const confirmed = await showModal(
+                    '🔄',
+                    'Reset Today\'s Attendance?',
+                    'Are you sure you want to mark all students as present?',
+                    'Reset',
+                    'Cancel',
+                    true
+                );
+                if (confirmed) {
+                    students.forEach(s => s.absent = false);
+                    render();
+                    showToast('Attendance reset successfully — all students present', 'success');
+                }
+            }
+
+            // ─── SEARCH ───
+            searchInput.addEventListener('input', function() {
+                searchQuery = this.value;
+                render();
+            });
+
+            // ─── FILTER ───
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.getAttribute('data-filter');
+                    render();
+                });
+            });
+
+            // ─── LOAD LOGO AS JPEG (reliable for jsPDF) ───
+            function loadLogoAsJPEG() {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.src = LOGO_URL;
+                    img.onload = function() {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+                            const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                            resolve(dataUrl);
+                        } catch (e) {
+                            console.warn('Canvas conversion failed:', e);
+                            resolve(null);
+                        }
+                    };
+                    img.onerror = function() {
+                        console.warn('Logo load failed');
+                        resolve(null);
+                    };
+                    // Timeout fallback
+                    setTimeout(() => resolve(null), 8000);
+                });
+            }
+
+            // ─── PDF GENERATION ───
+            async function generatePDF() {
+                const absent = students.filter(s => s.absent);
+                if (absent.length === 0) return null;
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+                const pageW = 210;
+                const margin = 18;
+                let y = margin;
+
+                // ── Load logo ──
+                const logoDataUrl = await loadLogoAsJPEG();
+
+                // ── Add logo (centered) ──
+                if (logoDataUrl) {
+                    try {
+                        const imgWidth = 30;
+                        const imgHeight = 30;
+                        const x = (pageW - imgWidth) / 2;
+                        doc.addImage(logoDataUrl, 'JPEG', x, y, imgWidth, imgHeight);
+                        y += imgHeight + 4;
+                    } catch (e) {
+                        console.warn('Could not add logo:', e);
+                    }
+                }
+
+                // ── Header text ──
+                doc.setFontSize(18);
+                doc.setFont('helvetica', 'bold');
+                doc.text('BARIDIH HIGH SCHOOL', pageW / 2, y, { align: 'center' });
+                y += 8;
+                doc.setFontSize(13);
+                doc.setFont('helvetica', 'bold');
+                doc.text('ABSENT STUDENTS REPORT', pageW / 2, y, { align: 'center' });
+                y += 8;
+
+                // ── Date (top-right) ──
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Date: ' + TODAY_STR, pageW - margin, margin + 2, { align: 'right' });
+
+                // ── Class info ──
+                y += 6;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Class: ' + CLASS, margin, y);
+                doc.text('Teacher: ' + TEACHER, margin + 50, y);
+                doc.text('Location: ' + LOCATION, margin + 100, y);
+                y += 10;
+
+                // ── NOTICE ──
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'bold');
+                doc.text('NOTICE', margin, y);
+                y += 6;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text('"The following students were marked absent for Class ' + CLASS + ' on the above date."', margin, y);
+                y += 8;
+
+                // ── Table ──
+                const tableData = absent.map(s => [
+                    String(s.roll).padStart(2, '0'),
+                    s.name
+                ]);
+
+                doc.autoTable({
+                    startY: y,
+                    head: [
+                        ['Roll No.', 'Student Name']
+                    ],
+                    body: tableData,
+                    theme: 'striped',
+                    headStyles: {
+                        fillColor: [79, 70, 229],
+                        textColor: [255, 255, 255],
+                        fontSize: 10,
+                        fontStyle: 'bold',
+                        halign: 'left'
+                    },
+                    bodyStyles: {
+                        fontSize: 10,
+                        halign: 'left'
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 30 },
+                        1: { cellWidth: 'auto' }
+                    },
+                    margin: { left: margin, right: margin }
+                });
+
+                // ── Footer ──
+                const finalY = doc.lastAutoTable.finalY + 12;
+                const totalAbsent = absent.length;
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Total Absent Students: ' + totalAbsent, margin, finalY);
+
+                const sigY = finalY + 18;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Class Teacher', margin, sigY);
+                doc.text(TEACHER, margin, sigY + 6);
+                doc.line(margin, sigY + 2, margin + 40, sigY + 2);
+
+                return doc.output('blob');
+            }
+
+            // ─── DOWNLOAD PDF ───
+            async function downloadPDF() {
+                const absent = students.filter(s => s.absent);
+                if (absent.length === 0) {
+                    showModal(
+                        '📋',
+                        'No Students Absent',
+                        'No students have been marked absent for Class ' + CLASS + '.',
+                        'Close',
+                        '',
+                        false
+                    ).then(() => {});
+                    return;
+                }
+
+                try {
+                    const blob = await generatePDF();
+                    if (!blob) return;
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'Baridih_High_School_Absent_Report_' + TODAY_FILENAME + '.pdf';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    showToast('PDF downloaded successfully', 'success');
+                } catch (err) {
+                    console.error(err);
+                    showToast('Failed to generate PDF. Please try again.', 'error');
+                }
+            }
+
+            // ─── WHATSAPP SHARE ───
+            async function shareWhatsApp() {
+                const absent = students.filter(s => s.absent);
+                if (absent.length === 0) {
+                    showModal(
+                        '📋',
+                        'No Students Absent',
+                        'No students have been marked absent for Class ' + CLASS + '.',
+                        'Close',
+                        '',
+                        false
+                    ).then(() => {});
+                    return;
+                }
+
+                try {
+                    const blob = await generatePDF();
+                    if (!blob) return;
+                    const file = new File([blob], 'Baridih_High_School_Absent_Report_' + TODAY_FILENAME + '.pdf', {
+                        type: 'application/pdf'
+                    });
+
+                    const shareMessage =
+                        'Baridih High School — Class ' + CLASS + '\n' +
+                        'Absent Students Report\n' +
+                        'Teacher: ' + TEACHER + '\n' +
+                        'Date: ' + TODAY_STR + '\n\n' +
+                        'Please find the attached absent students report.';
+
+                    const shareData = {
+                        title: 'Baridih High School - Absent Report',
+                        text: shareMessage,
+                        files: [file]
+                    };
+
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share(shareData);
+                        showToast('Report shared successfully', 'success');
+                    } else {
+                        // Fallback: download + instructions
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = file.name;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                        showToast('PDF downloaded. Please attach it manually in WhatsApp.', 'info');
+
+                        const result = await showModal(
+                            '📱',
+                            'PDF Downloaded',
+                            'Your report has been saved to your device.\n\n' +
+                            'To share it on WhatsApp:\n' +
+                            '1. Open the chat where you want to send it.\n' +
+                            '2. Tap the attachment (📎) icon.\n' +
+                            '3. Select "Document" and choose the downloaded PDF.\n\n' +
+                            'Tap below to open WhatsApp quickly.',
+                            'Open WhatsApp',
+                            'Close',
+                            false
+                        );
+                        if (result) {
+                            const encodedMsg = encodeURIComponent(
+                                'Baridih High School — Class ' + CLASS + '\n' +
+                                'Absent Students Report\n' +
+                                'Date: ' + TODAY_STR
+                            );
+                            window.open('https://wa.me/?text=' + encodedMsg, '_blank');
+                        }
+                    }
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.error(err);
+                        showToast('Sharing failed', 'error');
+                    }
+                }
+            }
+
+            // ─── EVENT BINDINGS ───
+            document.getElementById('downloadPdfBtn').addEventListener('click', downloadPDF);
+            document.getElementById('whatsappBtn').addEventListener('click', shareWhatsApp);
+            document.getElementById('resetBtn').addEventListener('click', resetAttendance);
+
+            // ─── INIT ───
+            render();
+
+        })();
+    </script>
+
 </body>
 </html>
