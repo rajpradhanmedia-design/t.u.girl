@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
@@ -420,11 +420,27 @@
             color: var(--text-secondary);
             width: 80px;
         }
+
         .student-table .name-col {
             font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 6px;
+            padding: 6px 12px;
+            margin: -6px -12px;
+            display: inline-block;
         }
+
+        .student-table .name-col:hover {
+            background: rgba(79, 70, 229, 0.06);
+        }
+
+        .student-table .name-col:active {
+            transform: scale(0.97);
+        }
+
         .student-table .status-col {
-            width: 120px;
+            width: 100px;
         }
 
         .status-badge {
@@ -442,32 +458,6 @@
             color: var(--green);
         }
         .status-badge.absent {
-            background: var(--red-bg);
-            color: var(--red);
-        }
-
-        .toggle-btn {
-            padding: 6px 18px;
-            border-radius: 40px;
-            border: none;
-            font-size: 0.78rem;
-            font-weight: 600;
-            font-family: var(--font);
-            cursor: pointer;
-            transition: var(--transition);
-            touch-action: manipulation;
-            background: var(--primary-bg);
-            color: var(--primary);
-        }
-
-        .toggle-btn:hover {
-            transform: scale(1.02);
-        }
-        .toggle-btn:active {
-            transform: scale(0.96);
-        }
-
-        .toggle-btn.absent-btn {
             background: var(--red-bg);
             color: var(--red);
         }
@@ -491,10 +481,16 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .student-card:hover {
             box-shadow: var(--shadow-hover);
+        }
+
+        .student-card:active {
+            transform: scale(0.97);
         }
 
         .student-card .card-roll {
@@ -513,9 +509,9 @@
 
         .student-card .card-status {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         .student-card .card-status .status-badge {
@@ -523,16 +519,13 @@
             padding: 3px 12px;
         }
 
-        .student-card .card-status .toggle-btn {
-            font-size: 0.7rem;
-            padding: 6px 16px;
-            min-height: 40px;
-            min-width: 64px;
+        .student-card.absent-card {
+            border-color: rgba(239, 68, 68, 0.25);
+            background: rgba(254, 242, 242, 0.70);
         }
 
-        .student-card.absent-card {
-            border-color: rgba(239, 68, 68, 0.20);
-            background: rgba(254, 242, 242, 0.60);
+        .student-card.absent-card .card-name {
+            color: var(--red);
         }
 
         @media (min-width: 768px) {
@@ -563,12 +556,6 @@
             }
             .student-card .card-name {
                 font-size: 0.9rem;
-            }
-            .student-card .card-status .toggle-btn {
-                font-size: 0.65rem;
-                padding: 5px 12px;
-                min-height: 36px;
-                min-width: 56px;
             }
         }
 
@@ -962,12 +949,12 @@
             <div class="stat-card total">
                 <span class="stat-icon">👥</span>
                 <div class="stat-label">Total Students</div>
-                <div class="stat-number" id="totalCount">40</div>
+                <div class="stat-number" id="totalCount">41</div>
             </div>
             <div class="stat-card present">
                 <span class="stat-icon">✅</span>
                 <div class="stat-label">Present</div>
-                <div class="stat-number" id="presentCount">40</div>
+                <div class="stat-number" id="presentCount">41</div>
             </div>
             <div class="stat-card absent">
                 <span class="stat-icon">❌</span>
@@ -998,7 +985,6 @@
                             <th>Roll No.</th>
                             <th>Student Name</th>
                             <th>Status</th>
-                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -1053,8 +1039,54 @@
             const CLASS = '9-A';
             const TEACHER = 'Ashok Sir';
             const LOCATION = 'Jamshedpur, Jharkhand';
-            const TOTAL = 40;
             const LOGO_URL = 'https://user25838.na.imgto.link/public/20260821/6635.avif';
+
+            // ─── STUDENT NAMES (41 students) ───
+            const STUDENT_NAMES = [
+                'Aaradhya Birwa',
+                'Abhilasha Kumari',
+                'Aditi Kumari Singh',
+                'Akansha Yadav',
+                'Anand Kumar Singh',
+                'Ananya Kunkal',
+                'Ankita Jha',
+                'Anmol Kumar',
+                'Arnish',
+                'Ayush Kumar',
+                'Ayush Solanki',
+                'Bhanu Pratap Singh',
+                'Chirag Kumar',
+                'Harshit Gupta',
+                'Kunal Nag',
+                'Laxmi Kumari',
+                'Manvi Kumari',
+                'Naman Rai',
+                'Navya Singh',
+                'Nitesh Dewagan',
+                'Pooja Kumari',
+                'Priya Das',
+                'Priyanshu Jaiswal',
+                'Ragini Kumari',
+                'Raj Pradhan',
+                'Ravi Kumar',
+                'Riya Kumari',
+                'Roshan Kumari',
+                'Sachin Upadhayay',
+                'Samiksha Kumari',
+                'Satyam Kumar',
+                'Shreyasi Karmakar',
+                'Siksha Srivastava',
+                'Suraj Tiwary',
+                'Tanushkha Bodra',
+                'T. Utkarsh',
+                'Urvashi',
+                'Vartika Saini',
+                'Vivek Kumar',
+                'Yogesh Singh',
+                'Shubam Patra'
+            ];
+
+            const TOTAL = STUDENT_NAMES.length; // 41
 
             // ─── DATE HELPERS ───
             function formatDate(date) {
@@ -1080,10 +1112,10 @@
 
             // ─── STUDENT DATA ───
             let students = [];
-            for (let i = 1; i <= TOTAL; i++) {
+            for (let i = 0; i < TOTAL; i++) {
                 students.push({
-                    roll: i,
-                    name: 'Student Name ' + i,
+                    roll: i + 1,
+                    name: STUDENT_NAMES[i],
                     absent: false
                 });
             }
@@ -1202,6 +1234,14 @@
                 absentEl.textContent = absent;
             }
 
+            // ─── TOGGLE ATTENDANCE ───
+            function toggleAttendance(roll) {
+                const student = students.find(s => s.roll === roll);
+                if (!student) return;
+                student.absent = !student.absent;
+                render();
+            }
+
             // ─── RENDER ───
             function render() {
                 const query = searchQuery.trim().toLowerCase();
@@ -1251,20 +1291,18 @@
                     const tr = document.createElement('tr');
                     const statusText = s.absent ? 'ABSENT' : 'PRESENT';
                     const statusClass = s.absent ? 'absent' : 'present';
-                    const btnText = s.absent ? 'Mark Present' : 'Mark Absent';
-                    const btnClass = s.absent ? 'toggle-btn absent-btn' : 'toggle-btn';
 
                     tr.innerHTML = `
                 <td class="roll-col">${String(s.roll).padStart(2, '0')}</td>
-                <td class="name-col">${s.name}</td>
+                <td class="name-col" data-roll="${s.roll}">${s.name}</td>
                 <td class="status-col"><span class="status-badge ${statusClass}">${statusText}</span></td>
-                <td><button class="${btnClass}" data-roll="${s.roll}">${btnText}</button></td>
               `;
                     tbody.appendChild(tr);
                 });
 
-                tbody.querySelectorAll('.toggle-btn').forEach(btn => {
-                    btn.addEventListener('click', function(e) {
+                // Click on name toggles attendance
+                tbody.querySelectorAll('.name-col').forEach(el => {
+                    el.addEventListener('click', function(e) {
                         const roll = parseInt(this.getAttribute('data-roll'), 10);
                         toggleAttendance(roll);
                     });
@@ -1279,34 +1317,22 @@
                     card.className = 'student-card' + (s.absent ? ' absent-card' : '');
                     const statusText = s.absent ? 'ABSENT' : 'PRESENT';
                     const statusClass = s.absent ? 'absent' : 'present';
-                    const btnText = s.absent ? 'Mark Present' : 'Mark Absent';
-                    const btnClass = s.absent ? 'toggle-btn absent-btn' : 'toggle-btn';
 
                     card.innerHTML = `
                 <div class="card-roll">Roll No. ${String(s.roll).padStart(2, '0')}</div>
                 <div class="card-name">${s.name}</div>
                 <div class="card-status">
                   <span class="status-badge ${statusClass}">${statusText}</span>
-                  <button class="${btnClass}" data-roll="${s.roll}">${btnText}</button>
                 </div>
               `;
                     container.appendChild(card);
-                });
 
-                container.querySelectorAll('.toggle-btn').forEach(btn => {
-                    btn.addEventListener('click', function(e) {
-                        const roll = parseInt(this.getAttribute('data-roll'), 10);
+                    // Click on card toggles attendance
+                    card.addEventListener('click', function(e) {
+                        const roll = s.roll;
                         toggleAttendance(roll);
                     });
                 });
-            }
-
-            // ─── TOGGLE ATTENDANCE (silent) ───
-            function toggleAttendance(roll) {
-                const student = students.find(s => s.roll === roll);
-                if (!student) return;
-                student.absent = !student.absent;
-                render();
             }
 
             // ─── RESET ───
@@ -1342,7 +1368,7 @@
                 });
             });
 
-            // ─── LOAD LOGO AS JPEG (reliable for jsPDF) ───
+            // ─── LOAD LOGO AS JPEG ───
             function loadLogoAsJPEG() {
                 return new Promise((resolve) => {
                     const img = new Image();
@@ -1366,7 +1392,6 @@
                         console.warn('Logo load failed');
                         resolve(null);
                     };
-                    // Timeout fallback
                     setTimeout(() => resolve(null), 8000);
                 });
             }
@@ -1382,10 +1407,8 @@
                 const margin = 18;
                 let y = margin;
 
-                // ── Load logo ──
                 const logoDataUrl = await loadLogoAsJPEG();
 
-                // ── Add logo (centered) ──
                 if (logoDataUrl) {
                     try {
                         const imgWidth = 30;
@@ -1398,7 +1421,6 @@
                     }
                 }
 
-                // ── Header text ──
                 doc.setFontSize(18);
                 doc.setFont('helvetica', 'bold');
                 doc.text('BARIDIH HIGH SCHOOL', pageW / 2, y, { align: 'center' });
@@ -1408,12 +1430,10 @@
                 doc.text('ABSENT STUDENTS REPORT', pageW / 2, y, { align: 'center' });
                 y += 8;
 
-                // ── Date (top-right) ──
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'normal');
                 doc.text('Date: ' + TODAY_STR, pageW - margin, margin + 2, { align: 'right' });
 
-                // ── Class info ──
                 y += 6;
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'normal');
@@ -1422,7 +1442,6 @@
                 doc.text('Location: ' + LOCATION, margin + 100, y);
                 y += 10;
 
-                // ── NOTICE ──
                 doc.setFontSize(11);
                 doc.setFont('helvetica', 'bold');
                 doc.text('NOTICE', margin, y);
@@ -1432,7 +1451,6 @@
                 doc.text('"The following students were marked absent for Class ' + CLASS + ' on the above date."', margin, y);
                 y += 8;
 
-                // ── Table ──
                 const tableData = absent.map(s => [
                     String(s.roll).padStart(2, '0'),
                     s.name
@@ -1463,7 +1481,6 @@
                     margin: { left: margin, right: margin }
                 });
 
-                // ── Footer ──
                 const finalY = doc.lastAutoTable.finalY + 12;
                 const totalAbsent = absent.length;
                 doc.setFontSize(11);
@@ -1552,7 +1569,6 @@
                         await navigator.share(shareData);
                         showToast('Report shared successfully', 'success');
                     } else {
-                        // Fallback: download + instructions
                         const url = URL.createObjectURL(blob);
                         const link = document.createElement('a');
                         link.href = url;
@@ -1605,4 +1621,4 @@
     </script>
 
 </body>
-</html>
+    </html>
